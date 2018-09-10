@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+</head>
+
+<body>
+    <div class="input"><input type='date'/></div>
+    <div class="containerForLastUpdateRecordAndPeriodItems"></div>
+
+    <script>
+        let currentDocument = document.currentScript.ownerDocument;
+            class DateInput {
+                constructor() {
+                    let that = this;
+                    this.input = currentDocument.querySelector('.input input');
+                    this.container = currentDocument.querySelector('.containerForLastUpdateRecordAndPeriodItems');
+                    this.input.onchange = function() {
+                        that.onChange();
+                    };
+                }
+                onChange() {
+                    if (new Date(this.input.value).getFullYear() >= 100) {
+                        this.inputValue = new Date(this.input.value);
+                        this.updateTime = new Date();
+                        return this.inputValue;
+                    }    
+                }              
+            }
+    
+            class DateRange extends DateInput {
+                constructor() {
+                    super()        
+                }
+    
+                createItems(period) {
+                    let dates = [];
+                    for (let i = +period.start; i < +period.end; i += 3600000 * 168) {
+                        dates.push(i)
+                    }
+                    let periods = [];
+                    for (let i = 0; i < dates.length; i++) {
+                        let date = new Date(dates[i]);
+                        if (date.getDay() == 1) periods[i] = `${date.toLocaleDateString()} - ${new Date(date.setHours(144)).toLocaleDateString()}`
+                        else if (date.getDay() == 2) periods[i] = `${new Date(date.setHours(-24)).toLocaleDateString()} - ${new Date(date.setHours(144)).toLocaleDateString()}`
+                        else if (date.getDay() == 3) periods[i] = `${new Date(date.setHours(-48)).toLocaleDateString()} - ${new Date(date.setHours(144)).toLocaleDateString()}`
+                        else if (date.getDay() == 4) periods[i] = `${new Date(date.setHours(-72)).toLocaleDateString()} - ${new Date(date.setHours(144)).toLocaleDateString()}`
+                        else if (date.getDay() == 5) periods[i] = `${new Date(date.setHours(-96)).toLocaleDateString()} - ${new Date(date.setHours(144)).toLocaleDateString()}`
+                        else if (date.getDay() == 6) periods[i] = `${new Date(date.setHours(-120)).toLocaleDateString()} - ${new Date(date.setHours(144)).toLocaleDateString()}`
+                        else if (date.getDay() == 0) periods[i] = `${new Date(date.setHours(-144)).toLocaleDateString()} - ${new Date(date.setHours(144)).toLocaleDateString()}`
+                    }
+                    return periods;
+                }
+    
+                renderItems(items) {
+                    this.container.innerHTML = '';
+                    let element = currentDocument.createElement('div');
+                    let that = this;
+                    this.container.appendChild(element)
+                    element.innerText = `Последнее изменение: ${this.updateTime.getDate() + '.' + ((this.updateTime.getMonth() < 9) ? '0' + (this.updateTime.getMonth() + 1) : this.updateTime.getMonth() + 1)}`		//убрал двоеточие
+                        items.forEach(function(item) {
+                            const element = document.createElement('div');
+                            element.innerText = item;
+                            that.container.appendChild(element);
+                        })
+                    }
+                    
+                onChange() {
+                    super.onChange();
+                    this.renderItems(this.createItems(this.createPeriod(this.inputValue)));
+                }
+    
+                createPeriod(date) {
+                    let newYear = date.getFullYear() + 1;
+                    let newDate = new Date(newYear, 0, 1)
+                    return {
+                        start: date,
+                        end: newDate
+                    }
+                }
+            }
+                range = new DateRange();
+        </script>
+</body>
+
+</html>
