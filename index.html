@@ -18,7 +18,8 @@
 
                 onChange() {
                     if (new Date(this.input.value).getFullYear() >= 100) {
-                        this.inputValue = new Date(this.input.value);
+                        console.log(event.target.value)
+                        this.inputValue = new Date(event.target.value);
                         this.updateTime = new Date();
                         return this.inputValue;
                     }    
